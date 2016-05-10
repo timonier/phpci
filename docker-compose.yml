@@ -1,0 +1,38 @@
+beanstalkd:
+    image: timonier/beanstalkd:1.10
+
+data:
+    command: sh
+    image: alpine:3.3
+    volumes:
+        - /var/www/.ssh
+        - /var/lib/mysql
+
+mysql:
+    image: mysql:5.7
+    environment:
+        - MYSQL_DATABASE=phpci
+        - MYSQL_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
+        - MYSQL_ROOT_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
+        - MYSQL_USER=phpci
+    volumes_from:
+        - data
+
+phpci:
+    image: timonier/phpci:1.7.0
+    links:
+        - beanstalkd
+        - mysql
+        - worker
+    volumes_from:
+        - data
+
+worker:
+    image: timonier/phpci:1.7.0
+    environment:
+        - PHPCI_MODE=worker
+    links:
+        - beanstalkd
+        - mysql
+    volumes_from:
+        - data
