@@ -35,13 +35,20 @@ EOF
 docker-compose up -d
 
 # Initialize (or update) the database
-docker-compose exec --user www-data phpci /bin/sh -c "cd /var/www && ./console phpci:update"
+while ! nc -z $(docker inspect --format "{{ .NetworkSettings.IPAddress }}" phpci_mysql_1) 3306 ; do sleep 1 ; done && docker-compose exec --user www-data phpci /bin/sh -c "cd /var/www && ./console phpci:update"
 
-# Increase (or decrease) the number of workers
-docker-compose scale worker=2
+# Download (or update) the PHP tools
+docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/composer https://getcomposer.org/download/1.1.0/composer.phar && chmod +x /usr/local/bin/composer'
+docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/phpcs https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar && chmod +x /usr/local/bin/phpcs'
+docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/phploc https://phar.phpunit.de/phploc.phar && chmod +x /usr/local/bin/phploc'
+docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/phpmd http://static.phpmd.org/php/latest/phpmd.phar && chmod +x /usr/local/bin/phpmd'
+docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/sami http://get.sensiolabs.org/sami.phar && chmod +x /usr/local/bin/sami'
 
 # Create an admin
 docker-compose exec --user www-data phpci /var/www/console phpci:create-admin
+
+# Increase (or decrease) the number of workers
+docker-compose scale worker=2
 
 # Go to the URL "localhost"
 ```

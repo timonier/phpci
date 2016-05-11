@@ -5,18 +5,17 @@ data:
     command: sh
     image: alpine:3.3
     volumes:
+        - /usr/local/bin
         - /var/www/.ssh
-        - /var/lib/mysql
 
 mysql:
+    command: --sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,ONLY_FULL_GROUP_BY"
     image: mysql:5.7
     environment:
         - MYSQL_DATABASE=phpci
         - MYSQL_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
         - MYSQL_ROOT_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
         - MYSQL_USER=phpci
-    volumes_from:
-        - data
 
 phpci:
     image: timonier/phpci:1.7.0

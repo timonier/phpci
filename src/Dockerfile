@@ -37,10 +37,11 @@ RUN set -x \
     # Install phpci
 
     && rm -rf /var/www/* \
-
     && curl -ksL "https://github.com/Block8/PHPCI/archive/v$PHPCI_VERSION.tar.gz" | tar fxz - -C /var \
     && mv "/var/PHPCI-$PHPCI_VERSION" /var/www \
-    && sh -c "cd /var/www && composer install --no-dev --optimize-autoloader" \
+    && composer install --no-dev --optimize-autoloader --working-dir /var/www \
+    && composer require --optimize-autoloader --update-no-dev --working-dir /var/www block8/php-docblock-checker \
+    && composer require --optimize-autoloader --update-no-dev --working-dir /var/www mauchede/sami-phpci-plugin \
     && mkdir /var/www/.ssh \
     && chown -R www-data:www-data /var/www \
 
