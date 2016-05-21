@@ -2,7 +2,7 @@ FROM debian:jessie
 MAINTAINER Morgan Auchede <morgan.auchede@gmail.com>
 
 ENV \
-    DEBIAN_FRONTEND=noninteractive \
+    GOSU_VERSION=1.7 \
     PHPCI_VERSION=1.7.0 \
     S6_OVERLAY_VERSION=1.17.1.2 \
     SYSLOG_STDOUT_VERSION=1.1.1
@@ -10,6 +10,8 @@ ENV \
 RUN set -x \
 
     # Prepare system
+
+    && export DEBIAN_FRONTEND=noninteractive \
 
     && echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list.d/nginx.list \
     && apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
@@ -29,36 +31,53 @@ RUN set -x \
            php5-json \
            php5-mysqlnd \
            net-tools \
-           sudo \
 
-    && curl -ksL "https://getcomposer.org/installer" | php -- --install-dir=/usr/bin \
+    && curl -sL "https://getcomposer.org/installer" | php -- --install-dir=/usr/bin \
     && mv /usr/bin/composer.phar /usr/bin/composer \
+
+    # Configure nginx
+
+    && mkdir -p /var/tmp/nginx \
+    && chown www-data:www-data /var/tmp/nginx \
+
+    # Configure www-data
+
+    && mkdir -p /var/www \
+    && chown www-data:www-data /var/www \
+
+    # Install gosu
+
+    && curl -sLo /usr/sbin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64"  \
+    && chmod +x /usr/sbin/gosu \
 
     # Install phpci
 
-    && rm -rf /var/www/* \
-    && curl -ksL "https://github.com/Block8/PHPCI/archive/v$PHPCI_VERSION.tar.gz" | tar fxz - -C /var \
-    && mv "/var/PHPCI-$PHPCI_VERSION" /var/www \
-    && composer install --no-dev --optimize-autoloader --working-dir /var/www \
-    && composer require --optimize-autoloader --update-no-dev --working-dir /var/www block8/php-docblock-checker \
-    && composer require --optimize-autoloader --update-no-dev --working-dir /var/www mauchede/sami-phpci-plugin \
-    && mkdir /var/www/.ssh \
-    && chown -R www-data:www-data /var/www \
+    && curl -sL "https://github.com/Block8/PHPCI/archive/v$PHPCI_VERSION.tar.gz" | tar fxz - -C /usr/share \
+    && mv /usr/share/PHPCI-$PHPCI_VERSION /usr/share/phpci \
+    && chown www-data:www-data /usr/share/phpci/PHPCI/build \
+
+    && composer install --no-dev --optimize-autoloader --working-dir /usr/share/phpci \
+    && composer require --optimize-autoloader --update-no-dev --working-dir /usr/share/phpci block8/php-docblock-checker \
+    && composer require --optimize-autoloader --update-no-dev --working-dir /usr/share/phpci mauchede/atoum-phpci-plugin \
+    && composer require --optimize-autoloader --update-no-dev --working-dir /usr/share/phpci mauchede/sami-phpci-plugin \
 
     # Install s6-overlay
 
-    && curl -ksL "https://github.com/just-containers/s6-overlay/releases/download/v$S6_OVERLAY_VERSION/s6-overlay-amd64.tar.gz" | tar fxz - -C / \
+    && curl -sL "https://github.com/just-containers/s6-overlay/releases/download/v$S6_OVERLAY_VERSION/s6-overlay-amd64.tar.gz" | tar fxz - -C / \
 
     # Install syslog-stdout
 
-    && curl -ksL "https://github.com/timonier/syslog-stdout/releases/download/v$SYSLOG_STDOUT_VERSION/syslog-stdout.tar.gz" | tar fxz - -C /usr/sbin \
+    && curl -sL "https://github.com/timonier/syslog-stdout/releases/download/v$SYSLOG_STDOUT_VERSION/syslog-stdout.tar.gz" | tar fxz - -C /usr/sbin \
 
     # Clean
 
     && rm -rf \
+           /etc/nginx/conf.d/default.conf \
+           /etc/php5/fpm/pool.d/www.conf \
            /root/.composer \
            /tmp/* \
            /usr/bin/composer \
+           /usr/local/bin \
            /usr/share/nginx \
            /var/lib/apt/lists/*
 

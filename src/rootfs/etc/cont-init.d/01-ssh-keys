@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ ! -d /srv/phpci/ssh ] ; then
+    mkdir -p /srv/phpci/ssh
+    ssh-keygen -C '' -N '' -b 4096 -f /srv/phpci/ssh/id_rsa -t rsa > /dev/null
+    chown -R www-data:www-data /srv/phpci/ssh
+fi
+
+ln -s /srv/phpci/ssh /var/www/.ssh

@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv /bin/sh
 
-cat > /var/www/PHPCI/config.yml << EOF
+cat > /usr/share/phpci/PHPCI/config.yml << EOF
 b8:
     database:
         servers:
@@ -15,7 +15,3 @@ phpci:
         host: ${PHPCI_QUEUE_HOST:-beanstalkd}
         queue: ${PHPCI_QUEUE_NAME:-phpci}
 EOF
-
-chown www-data:www-data /var/www/PHPCI/config.yml
-
-exit 0

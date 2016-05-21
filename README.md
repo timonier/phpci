@@ -21,6 +21,11 @@ An example of usage is provided with `docker-compose`:
 ```sh
 # Override docker-compose
 cat > docker-compose.override.yml << "EOF"
+data:
+    volumes:
+        - /srv/phpci/phpci:/srv/phpci
+        - /srv/phpci/mysql:/var/lib/mysql
+
 mysql:
     environment:
         - MYSQL_PASSWORD=6e737f0e-8641-4894-8d74-87d161841bc6
@@ -34,9 +39,6 @@ EOF
 # Start the project
 docker-compose up -d
 
-# Initialize (or update) the database
-while ! nc -z $(docker inspect --format "{{ .NetworkSettings.IPAddress }}" phpci_mysql_1) 3306 ; do sleep 1 ; done && docker-compose exec --user www-data phpci /bin/sh -c "cd /var/www && ./console phpci:update"
-
 # Download (or update) the PHP tools
 docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/composer https://getcomposer.org/download/1.1.0/composer.phar && chmod +x /usr/local/bin/composer'
 docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/phpcs https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar && chmod +x /usr/local/bin/phpcs'
@@ -45,7 +47,7 @@ docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/phpmd http://static.ph
 docker-compose exec phpci sh -c 'curl -sLo /usr/local/bin/sami http://get.sensiolabs.org/sami.phar && chmod +x /usr/local/bin/sami'
 
 # Create an admin
-docker-compose exec --user www-data phpci /var/www/console phpci:create-admin
+docker-compose exec --user www-data phpci /usr/share/phpci/console phpci:create-admin
 
 # Increase (or decrease) the number of workers
 docker-compose scale worker=2

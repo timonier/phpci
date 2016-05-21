@@ -2,11 +2,10 @@ beanstalkd:
     image: timonier/beanstalkd:1.10
 
 data:
-    command: sh
-    image: alpine:3.3
+    image: busybox
     volumes:
-        - /usr/local/bin
-        - /var/www/.ssh
+        - /srv/phpci
+        - /var/lib/mysql
 
 mysql:
     command: --sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,ONLY_FULL_GROUP_BY"
@@ -16,6 +15,8 @@ mysql:
         - MYSQL_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
         - MYSQL_ROOT_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
         - MYSQL_USER=phpci
+    volumes_from:
+        - data
 
 phpci:
     image: timonier/phpci:1.7.0

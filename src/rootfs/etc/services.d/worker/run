@@ -1,0 +1,7 @@
+#!/bin/bash
+
+exec 1> >(logger -p "daemon.info")
+exec 2> >(logger -p "daemon.info")
+
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+gosu www-data /usr/share/phpci/console phpci:worker

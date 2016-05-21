@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cd /usr/share/phpci
+
+until [ "Updating PHPCI database: OK" = "$RESULT" ] ; do
+    sleep 1
+    RESULT=$(php console phpci:update --no-ansi 2>&1)
+done

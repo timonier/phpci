@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv /bin/sh
+
+if [ "worker" = "$PHPCI_MODE" ] ; then
+    rm /etc/services.d/worker/down
+else
+    rm /etc/services.d/nginx/down
+    rm /etc/services.d/php-fpm/down
+fi

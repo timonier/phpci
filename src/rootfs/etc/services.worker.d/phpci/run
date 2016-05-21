@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv /bin/sh
-
-sudo -u www-data -EH /var/www/console phpci:worker

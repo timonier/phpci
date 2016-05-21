@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ ! -d /srv/phpci/bin ] ; then
+    mkdir -p /srv/phpci/bin
+    chown www-data:www-data /srv/phpci/bin
+fi
+
+ln -s /srv/phpci/bin /usr/local/bin
