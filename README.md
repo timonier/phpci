@@ -21,20 +21,28 @@ An example of usage is provided with `docker-compose`:
 ```sh
 # Override docker-compose
 cat > docker-compose.override.yml << "EOF"
-data:
-    volumes:
-        - /srv/phpci/phpci:/srv/phpci
-        - /srv/phpci/mysql:/var/lib/mysql
+version: '2'
 
-mysql:
-    environment:
-        - MYSQL_PASSWORD=6e737f0e-8641-4894-8d74-87d161841bc6
-        - MYSQL_ROOT_PASSWORD=96bb5db7-0f0f-4758-af6f-c8dd4a9fe058
+services:
+    mysql:
+        environment:
+            - MYSQL_PASSWORD=${PHPCI_DB_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
-phpci:
-    ports:
-        - "80:80"
+    phpci:
+        environment:
+            - PHPCI_DB_PASSWORD=${PHPCI_DB_PASSWORD}
+        ports:
+            - "80:80"
+
+    worker:
+        environment:
+            - PHPCI_DB_PASSWORD=${PHPCI_DB_PASSWORD}
 EOF
+
+# Prepare the system
+export MYSQL_ROOT_PASSWORD="96bb5db7-0f0f-4758-af6f-c8dd4a9fe058"
+export PHPCI_DB_PASSWORD="6e737f0e-8641-4894-8d74-87d161841bc6"
 
 # Start the project
 docker-compose up -d

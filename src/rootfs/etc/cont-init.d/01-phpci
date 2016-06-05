@@ -4,11 +4,11 @@ cat > /usr/share/phpci/PHPCI/config.yml << EOF
 b8:
     database:
         servers:
-            read: ${PHPCI_DB_HOST:-mysql}
-            write: ${PHPCI_DB_HOST:-mysql}
-        name: ${PHPCI_DB_NAME:-$MYSQL_ENV_MYSQL_DATABASE}
-        username: ${PHPCI_DB_USER:-$MYSQL_ENV_MYSQL_USER}
-        password: ${PHPCI_DB_PASSWORD:-$MYSQL_ENV_MYSQL_PASSWORD}
+            read: ${PHPCI_DB_HOST}
+            write: ${PHPCI_DB_HOST}
+        name: ${PHPCI_DB_NAME}
+        username: ${PHPCI_DB_USER}
+        password: ${PHPCI_DB_PASSWORD}
 phpci:
     url: "${PHPCI_URL:-http://$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1 }')}"
     worker:

@@ -35,11 +35,6 @@ RUN set -x \
     && curl -sL "https://getcomposer.org/installer" | php -- --install-dir=/usr/bin \
     && mv /usr/bin/composer.phar /usr/bin/composer \
 
-    # Configure nginx
-
-    && mkdir -p /var/tmp/nginx \
-    && chown www-data:www-data /var/tmp/nginx \
-
     # Configure www-data
 
     && mkdir -p /var/www \
@@ -52,12 +47,11 @@ RUN set -x \
 
     # Install phpci
 
-    && curl -sL "https://github.com/Block8/PHPCI/archive/v$PHPCI_VERSION.tar.gz" | tar fxz - -C /usr/share \
+    && curl -ksL "https://github.com/Block8/PHPCI/archive/$PHPCI_VERSION.tar.gz" | tar fxz - -C /usr/share \
     && mv /usr/share/PHPCI-$PHPCI_VERSION /usr/share/phpci \
     && chown www-data:www-data /usr/share/phpci/PHPCI/build \
 
     && composer install --no-dev --optimize-autoloader --working-dir /usr/share/phpci \
-    && composer require --optimize-autoloader --update-no-dev --working-dir /usr/share/phpci block8/php-docblock-checker \
     && composer require --optimize-autoloader --update-no-dev --working-dir /usr/share/phpci mauchede/atoum-phpci-plugin \
     && composer require --optimize-autoloader --update-no-dev --working-dir /usr/share/phpci mauchede/sami-phpci-plugin \
 
