@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+until [ "Updating PHPCI database: OK" = "$RESULT" ] ; do
+    sleep 1
+    RESULT="$(sh -c "cd /opt/phpci && php console phpci:update --no-ansi 2>&1")"
+done

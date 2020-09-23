@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+s6-svwait /var/run/s6/services/syslog-stdout
+
+exec s6-setuidgid root php-fpm

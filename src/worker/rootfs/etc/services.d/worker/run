@@ -1,0 +1,9 @@
+#!/bin/bash
+
+s6-svwait /var/run/s6/services/syslog-stdout
+
+exec 1> >(logger -p "daemon.info")
+exec 2> >(logger -p "daemon.info")
+
+export HOME="$(getent passwd www-data | cut -d : -f 6)"
+exec s6-setuidgid www-data php /opt/phpci/console phpci:worker

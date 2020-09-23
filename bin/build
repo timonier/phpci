@@ -1,4 +1,6 @@
 #!/bin/sh
-cd "`dirname "$0"`/../src"
+set -ex
+cd "$(dirname "$0")/../src"
 
-docker build -t ${IMAGE:-timonier/phpci}:${TAG:-1.7.0} .
+sh -c "cd master && docker build --tag '${IMAGE:-timonier/phpci}:${TAG:-master}' ."
+sh -c "cd worker && docker build --tag '${IMAGE:-timonier/phpci}:${TAG:-worker}' ."

@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+cat > /opt/phpci/PHPCI/config.yml << EOF
+b8:
+    database:
+        servers:
+            read: ${PHPCI_DB_HOST}
+            write: ${PHPCI_DB_HOST}
+        name: ${PHPCI_DB_NAME}
+        username: ${PHPCI_DB_USER}
+        password: ${PHPCI_DB_PASSWORD}
+phpci:
+    url: "${PHPCI_URL:-http://$(ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | awk '{ print $1 }')}"
+    worker:
+        host: ${PHPCI_QUEUE_HOST}
+        queue: ${PHPCI_QUEUE_NAME}
+EOF

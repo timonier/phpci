@@ -1,45 +1,56 @@
-version: '2'
+version: '2.3'
 
 services:
+
     beanstalkd:
-        image: timonier/beanstalkd:1.10
+        command: 'beanstalkd'
+        image: 'timonier/beanstalkd:latest'
+        init: true
+
+    master:
+        build:
+            context: ./src/master
+            dockerfile: ./src/master/Dockerfile
+        environment:
+            - 'PHPCI_DB_HOST=mysql'
+            - 'PHPCI_DB_NAME=phpci'
+            - 'PHPCI_DB_PASSWORD=ThisPasswordIsNotSoSecretChangeIt'
+            - 'PHPCI_DB_USER=phpci'
+            - 'PHPCI_QUEUE_HOST=beanstalkd'
+            - 'PHPCI_QUEUE_NAME=phpci'
+        image: 'timonier/phpci:master'
+        volumes:
+            - 'phpci-data:/home/www-data:rw'
 
     mysql:
-        command: --sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,ONLY_FULL_GROUP_BY"
+        command: '--sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,ONLY_FULL_GROUP_BY"'
         environment:
-            - MYSQL_DATABASE=phpci
-            - MYSQL_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
-            - MYSQL_ROOT_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
-            - MYSQL_USER=phpci
-        image: mysql:5.7
+            - 'MYSQL_DATABASE=phpci'
+            - 'MYSQL_PASSWORD=ThisPasswordIsNotSoSecretChangeIt'
+            - 'MYSQL_ROOT_PASSWORD=ThisPasswordIsNotSoSecretChangeIt'
+            - 'MYSQL_USER=phpci'
+        image: 'timonier/mysql:latest'
+        init: true
         volumes:
-            - mysql:/var/lib/mysql:rw
-
-    phpci:
-        image: timonier/phpci:1.7.0
-        environment:
-            - PHPCI_DB_HOST=mysql
-            - PHPCI_DB_NAME=phpci
-            - PHPCI_DB_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
-            - PHPCI_DB_USER=phpci
-            - PHPCI_QUEUE_HOST=beanstalkd
-            - PHPCI_QUEUE_NAME=phpci
-        volumes:
-            - phpci:/srv/phpci:rw
+            - 'mysql-data:/var/lib/mysql:rw'
 
     worker:
+        build:
+            context: ./src/worker
+            dockerfile: ./src/worker/Dockerfile
         environment:
-            - PHPCI_DB_HOST=mysql
-            - PHPCI_DB_NAME=phpci
-            - PHPCI_DB_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
-            - PHPCI_DB_USER=phpci
-            - PHPCI_MODE=worker
-            - PHPCI_QUEUE_HOST=beanstalkd
-            - PHPCI_QUEUE_NAME=phpci
-        image: timonier/phpci:1.7.0
+            - 'PHPCI_DB_HOST=mysql'
+            - 'PHPCI_DB_NAME=phpci'
+            - 'PHPCI_DB_PASSWORD=ThisPasswordIsNotSoSecretChangeIt'
+            - 'PHPCI_DB_USER=phpci'
+            - 'PHPCI_QUEUE_HOST=beanstalkd'
+            - 'PHPCI_QUEUE_NAME=phpci'
+        image: timonier/phpci:worker
         volumes:
-            - phpci:/srv/phpci:rw
+            - 'phpci-data:/home/www-data:rw'
 
 volumes:
-    mysql: {}
-    phpci: {}
+
+    mysql-data: {}
+
+    phpci-data: {}

@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+if [ -n "${GROUP}" ] ; then
+    groupmod --gid "${GROUP}" --non-unique www-data
+fi
+
+if [ -n "${USER}" ] ; then
+    usermod --non-unique --uid "${USER}" www-data
+fi
